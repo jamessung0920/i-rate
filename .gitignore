@@ -1,0 +1,7 @@
+www/golang/logs/
+www/golang/app
+www/golang/tmp/
+services/mysql/
+services/golang/fresh/
+.DS_Store
+.env

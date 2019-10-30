@@ -1,0 +1,28 @@
+version: '3.4'
+services:
+  golang:
+    build:
+      context: .
+      dockerfile: ./services/golang/Dockerfile
+      args: 
+        APP_ENV: ${APP_ENV}
+    env_file: .env
+    ports:
+      - ${PORT_GO}:8080
+    volumes:
+      - ./www/golang:/go/src/app
+    container_name: ${PRJ_NAME}-go-${APP_ENV}
+    restart: unless-stopped
+  db:
+    image: mysql:5.6
+    volumes:
+      - ./services/mysql/data:/var/lib/mysql
+    environment:
+      - "MYSQL_DATABASE=${DB_NAME}"
+      - "MYSQL_USER=${DB_USER}"
+      - "MYSQL_PASSWORD=${DB_PASSWORD}"
+      - "MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}"
+    ports:
+      - ${PORT_DB}:3306
+    container_name: ${PRJ_NAME}-mysql-${APP_ENV}
+    restart: unless-stopped
