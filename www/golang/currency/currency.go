@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	// "github.com/jinzhu/gorm"
+	"github.com/spf13/viper"
 	"net/http"
 	
 	"app/common"
@@ -16,6 +18,10 @@ import (
 )
 
 var Log = common.NewLogger()
+
+type CurrencyConfig struct {
+	Statement	map[string][]string	`json:"statement"`
+}
 
 func AddRoute(r *gin.Engine) {
 	// Log.info("hahaha")
@@ -71,6 +77,17 @@ func GetCurrencyList() (error, []string) {
 	}
 }
 
+func GetCurrencyStatement(currencyList []string) (error, map[string][]string) {
+	_, statementConfig := getStatementConfig()
+
+	currencyStatement := make(map[string][]string)
+	for _, currency := range currencyList {
+		key := strings.ToLower(currency)
+		currencyStatement[key] = statementConfig.Statement[key]
+	}
+	return nil, currencyStatement
+}
+
 func GetCurrencyLatestRate(currency string) (error, models.Rate) {
 	var currencyModel models.Currency
 	var rateModel models.Rate
@@ -113,4 +130,17 @@ func doAutoCrawlRate(c *gin.Context) {
 		"message": "start crawling rate",
 		"result": true,
 	})
+}
+
+func getStatementConfig() (error, CurrencyConfig) {
+	var config CurrencyConfig
+    viper.SetConfigName("currency")   // 设置配置文件名 (不带后缀)
+    viper.AddConfigPath("./configs")        // 第一个搜索路径
+    err := viper.ReadInConfig()     // 读取配置数据
+    if err != nil {
+        return err, config
+    }
+    viper.Unmarshal(&config)        // 将配置信息绑定到结构体上
+
+	return nil, config
 }

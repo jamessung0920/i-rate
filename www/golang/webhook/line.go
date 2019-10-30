@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"io/ioutil"
 	"encoding/json"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -13,7 +14,9 @@ import (
 	"app/common"
 )
 
+
 var (
+	Log = common.NewLogger()
 	channelToken = "E6lkGp635WG1GKcKCViXIn5xCPPudDEvefYpFRRmhiOHgLzvUcQpoOo+3ZhGfKhymd1Mujyfj0ddLHpNPLjJm2GPw3pynN7KPuJQ9aUrvcSrQue7ibw8el1eO/Xnm+qUHCnFdrQcPF6Z6n000j2sMQdB04t89/1O/w1cDnyilFU="
 	replyUrl = "https://api.line.me/v2/bot/message/reply"
 )
@@ -63,18 +66,27 @@ func webhook(c *gin.Context) {
 	json.Unmarshal(body, &incomingData)
 	replyToken := incomingData.Events[0].ReplyToken
 	incomingMessage := incomingData.Events[0].Message.Text
+	incomingMessage = strings.TrimSpace(incomingMessage)
 
-	_, CurrencyList := currency.GetCurrencyList()
-	if common.Contains(CurrencyList, incomingMessage) {
-		_, rate := currency.GetCurrencyLatestRate(incomingMessage)
+	_, currencyList := currency.GetCurrencyList()
+	_, currencyStatement := currency.GetCurrencyStatement(currencyList)
+
+	var responseMessage string
+	if incomingMessage == "貨幣列表" {
+		currencyStr := strings.Join(currencyList, "\n")
+		responseMessage = currencyStr
+	} else if currencyKey, findOk := common.Mapkey(currencyStatement, strings.ToUpper(incomingMessage)); findOk{
+		_, rate := currency.GetCurrencyLatestRate(strings.ToUpper(currencyKey))
+		fmt.Println("rate response!")
 		fmt.Println(rate)
-		fmt.Println("line 71!!!!!!!!")
-		incomingMessage = fmt.Sprintf("匯率時間: %s\n 本行買入匯率: %s\n 本行賣出匯率: %s", rate.RateTime, rate.BuyRate, rate.SellRate)
+		responseMessage = fmt.Sprintf("匯率時間: %s\n 本行買入匯率: %s\n 本行賣出匯率: %s", rate.RateTime, rate.BuyRate, rate.SellRate)
+	} else {
+		responseMessage = incomingMessage
 	}
 
 	var response ResponseData
 	response.ReplyToken = replyToken
-	response.Messages = append(response.Messages, Message{Type: "text", Text:incomingMessage})
+	response.Messages = append(response.Messages, Message{Type: "text", Text:responseMessage})
 
 	fmt.Println(incomingMessage, response)
 	responseBody, _ := json.Marshal(response)
@@ -86,7 +98,7 @@ func webhook(c *gin.Context) {
 	clt := http.Client{}
 	resp, respErr := clt.Do(req)
 	if respErr != nil {
-		panic(respErr)
+		Log.Warn("call response api error!")
 	}
 	fmt.Println(resp)
 	defer resp.Body.Close()

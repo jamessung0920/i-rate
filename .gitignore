@@ -1,4 +1,4 @@
-www/golang/logs/
+www/golang/logs/go.log*
 www/golang/app
 www/golang/tmp/
 services/mysql/

@@ -33,3 +33,16 @@ func CallAPI(url string, method string, body []byte) {
 func CheckGoRoutineNum() {
 	fmt.Printf("#goroutines: %d\n", runtime.NumGoroutine())
 }
+
+func Mapkey(m map[string][]string, value string) (key string, ok bool) {
+	for k, v := range m {
+		for _, sliceV := range v {
+			if sliceV == value {
+				key = k
+				ok = true
+				return
+			}
+		}
+	}
+	return
+}

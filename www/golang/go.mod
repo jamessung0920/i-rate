@@ -21,5 +21,6 @@ require (
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca // indirect
 	github.com/sirupsen/logrus v1.2.0
+	github.com/spf13/viper v1.4.0
 	github.com/temoto/robotstxt v1.1.1 // indirect
 )
