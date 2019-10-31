@@ -79,7 +79,8 @@ func webhook(c *gin.Context) {
 		_, rate := currency.GetCurrencyLatestRate(strings.ToUpper(currencyKey))
 		fmt.Println("rate response!")
 		fmt.Println(rate)
-		responseMessage = fmt.Sprintf("匯率時間: %s\n 本行買入匯率: %s\n 本行賣出匯率: %s", rate.RateTime, rate.BuyRate, rate.SellRate)
+		rateTimeString := rate.RateTime.Format("2006-01-02 15:04:05")
+		responseMessage = fmt.Sprintf("匯率時間: %s\n 本行買入匯率: %s\n 本行賣出匯率: %s", rateTimeString, rate.BuyRate, rate.SellRate)
 	} else {
 		responseMessage = incomingMessage
 	}
