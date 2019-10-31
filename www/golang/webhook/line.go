@@ -65,6 +65,7 @@ func webhook(c *gin.Context) {
 
 	json.Unmarshal(body, &incomingData)
 	replyToken := incomingData.Events[0].ReplyToken
+	incomingUserID := incomingData.Events[0].Source.UserID
 	incomingMessage := incomingData.Events[0].Message.Text
 	incomingMessage = strings.TrimSpace(incomingMessage)
 
@@ -89,7 +90,7 @@ func webhook(c *gin.Context) {
 	response.ReplyToken = replyToken
 	response.Messages = append(response.Messages, Message{Type: "text", Text:responseMessage})
 
-	fmt.Println(incomingMessage, response)
+	fmt.Println(incomingUserID, incomingMessage, response)
 	responseBody, _ := json.Marshal(response)
 
 	req, _ := http.NewRequest("POST", replyUrl, bytes.NewBuffer(responseBody))
