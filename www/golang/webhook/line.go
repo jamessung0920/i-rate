@@ -76,6 +76,8 @@ func webhook(c *gin.Context) {
 	if incomingMessage == "貨幣列表" {
 		currencyStr := strings.Join(currencyList, "\n")
 		responseMessage = currencyStr
+	} else if incomingMessage == "使用說明" {
+		responseMessage = fmt.Sprintf("點選 \"貨幣列表\" 可查看目前支援貨幣匯率\n----------------------\n點選 \"關注\" 後依照指示設定理想匯率主動通知")
 	} else if currencyKey, findOk := common.Mapkey(currencyStatement, strings.ToUpper(incomingMessage)); findOk{
 		_, rate := currency.GetCurrencyLatestRate(strings.ToUpper(currencyKey))
 		fmt.Println("rate response!")
