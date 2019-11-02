@@ -127,6 +127,8 @@ func doAutoCrawlRate(c *gin.Context) {
 			fmt.Println("do crawl rate data ...")
 			Log.Info("do crawl rate data ...")
 			common.CallAPI("http://172.17.0.1:" + portGo + "/currency/taiwan-bank", "GET", nil)
+			common.CallAPI("http://172.17.0.1:" + portGo + "/currency/ctbc-bank", "GET", nil)
+			common.CallAPI("http://172.17.0.1:" + portGo + "/currency/esun-bank", "GET", nil)
 			time.Sleep(5 * time.Minute)
 		}
 	}()
