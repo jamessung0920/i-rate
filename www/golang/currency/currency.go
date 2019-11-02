@@ -100,7 +100,8 @@ func GetCurrencyLatestRate(currency string) (error, []models.Rate) {
 													FROM rate
 													GROUP BY crawl_from
 												) T2
-											ON T1.created_at = T2.max_created_time
+											ON T1.created_at = T2.max_created_time AND
+											   T1.crawl_from = T2.crawl_from
 											WHERE currency_id = ?`, currencyModel.ID).Find(&rateModel).Error
 	if queryLatestErr != nil {
 		Log.Warn("query latest rate error")
