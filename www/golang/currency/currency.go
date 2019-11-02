@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 	"strings"
+	// "database/sql"
 
 	"github.com/gin-gonic/gin"
 	// "github.com/jinzhu/gorm"
@@ -28,17 +29,28 @@ func AddRoute(r *gin.Engine) {
 	currency := r.Group("currency")
 	{
 		currency.GET("taiwan-bank", getTaiwanBankCurrencyRate)
+		currency.GET("ctbc-bank", getCtbcBankCurrencyRate)
+		currency.GET("esun-bank", getEsunBankCurrencyRate)
 		currency.GET("crawl", doAutoCrawlRate)
 	}
 }
 
 func getTaiwanBankCurrencyRate(c *gin.Context) {
-	// queryString := c.Request.URL.Query()
-	// fmt.Println(queryString["currency"])
-	_, currencyList := getCurrencyList()
-	for key, value := range currencyList {
-		go crawler.Crawler(key, value)
-	}
+	go crawler.Crawler("taiwan-bank")
+	c.JSON(http.StatusOK, gin.H{
+		"result": true,
+	})
+}
+
+func getCtbcBankCurrencyRate(c *gin.Context) {
+	go crawler.Crawler("ctbc-bank")
+	c.JSON(http.StatusOK, gin.H{
+		"result": true,
+	})
+}
+
+func getEsunBankCurrencyRate(c *gin.Context) {
+	go crawler.Crawler("esun-bank")
 	c.JSON(http.StatusOK, gin.H{
 		"result": true,
 	})
@@ -61,22 +73,6 @@ func getCurrencyList() (error, map[uint]string) {
 	}
 }
 
-func GetCurrencyList() (error, []string) {
-	var currency []models.Currency
-	if queryErr := database.GetDB().Find(&currency).Error; queryErr != nil {
-		Log.Warn("query currency error")
-		return queryErr, nil
-	} else {
-		// var currencyList []string
-		var currencyList []string 
-		for _, value := range currency {
-			currencyList = append(currencyList, value.Currency)
-		}
-		// fmt.Println(currency.Currency)
-		return nil, currencyList
-	}
-}
-
 func GetCurrencyStatement(currencyList []string) (error, map[string][]string) {
 	_, statementConfig := getStatementConfig()
 
@@ -88,20 +84,28 @@ func GetCurrencyStatement(currencyList []string) (error, map[string][]string) {
 	return nil, currencyStatement
 }
 
-func GetCurrencyLatestRate(currency string) (error, models.Rate) {
+func GetCurrencyLatestRate(currency string) (error, []models.Rate) {
 	var currencyModel models.Currency
-	var rateModel models.Rate
+	var rateModel []models.Rate
+
 	if queryErr := database.GetDB().Where("currency = ?", currency).First(&currencyModel).Error; queryErr != nil {
 		Log.Warn("query currency error")
 		return queryErr, rateModel
 	}
-	if queryErr := database.GetDB().Where("currency_id = ?", currencyModel.ID).Last(&rateModel).Error; queryErr != nil {
-		Log.Warn("query rate error")
-		return queryErr, rateModel
+
+	queryLatestErr := database.GetDB().Raw(`SELECT T1.* FROM rate T1 inner JOIN
+												(
+													SELECT crawl_from,
+														MAX(created_at) max_created_time
+													FROM rate
+													GROUP BY crawl_from
+												) T2
+											ON T1.created_at = T2.max_created_time
+											WHERE currency_id = ?`, currencyModel.ID).Find(&rateModel).Error
+	if queryLatestErr != nil {
+		Log.Warn("query latest rate error")
+		return queryLatestErr, rateModel
 	} else {
-		// var currencyList []string
-		fmt.Println(rateModel)
-		// fmt.Println(currency.Currency)
 		return nil, rateModel
 	}
 }

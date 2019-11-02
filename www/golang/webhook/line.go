@@ -53,7 +53,6 @@ func AddRoute(r *gin.Engine) {
 	hook := r.Group("webhook")
 	{
 		hook.POST("/", webhook)
-		// webhook.GET("some-site", get)
 	}
 }
 
@@ -69,7 +68,7 @@ func webhook(c *gin.Context) {
 	incomingMessage := incomingData.Events[0].Message.Text
 	incomingMessage = strings.TrimSpace(incomingMessage)
 
-	_, currencyList := currency.GetCurrencyList()
+	_, currencyList := common.GetCurrencyList()
 	_, currencyStatement := currency.GetCurrencyStatement(currencyList)
 
 	var responseMessage string
@@ -87,11 +86,15 @@ func webhook(c *gin.Context) {
 	} else if incomingMessage == "使用說明" {
 		responseMessage = fmt.Sprintf("點選 \"貨幣列表\" 可查看目前支援貨幣匯率\n----------------------\n點選 \"關注\" 後依照指示設定理想匯率主動通知")
 	} else if currencyKey, findOk := common.Mapkey(currencyStatement, strings.ToUpper(incomingMessage)); findOk{
-		_, rate := currency.GetCurrencyLatestRate(strings.ToUpper(currencyKey))
+		_, bankLatestRateData := currency.GetCurrencyLatestRate(strings.ToUpper(currencyKey))
 		fmt.Println("rate response!")
-		fmt.Println(rate)
-		rateTimeString := rate.RateTime.Format("2006-01-02 15:04:05")
-		responseMessage = fmt.Sprintf("匯率時間: %s\n 本行買入匯率: %s\n 本行賣出匯率: %s", rateTimeString, rate.BuyRate, rate.SellRate)
+		fmt.Println(bankLatestRateData)
+		var rateBuffer bytes.Buffer
+		for _, eachBankRate := range bankLatestRateData {
+			rateTimeString := eachBankRate.RateTime.Format("2006-01-02 15:04:05")
+			rateBuffer.WriteString(fmt.Sprintf("%s\n匯率時間: %s\n本行買入匯率: %s\n本行賣出匯率: %s\n===============\n", eachBankRate.CrawlFrom, rateTimeString, eachBankRate.BuyRate, eachBankRate.SellRate))
+		}
+		responseMessage = rateBuffer.String()
 	} else {
 		responseMessage = incomingMessage
 	}
