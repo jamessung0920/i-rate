@@ -96,7 +96,7 @@ func webhook(c *gin.Context) {
 		}
 		responseMessage = rateBuffer.String()
 	} else {
-		responseMessage = incomingMessage
+		// responseMessage = incomingMessage
 	}
 
 	var response ResponseData
