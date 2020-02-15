@@ -2,10 +2,11 @@ package common
 
 import (
 	"encoding/json"
+	"os"
 )
 
 var (
-	channelToken = "E6lkGp635WG1GKcKCViXIn5xCPPudDEvefYpFRRmhiOHgLzvUcQpoOo+3ZhGfKhymd1Mujyfj0ddLHpNPLjJm2GPw3pynN7KPuJQ9aUrvcSrQue7ibw8el1eO/Xnm+qUHCnFdrQcPF6Z6n000j2sMQdB04t89/1O/w1cDnyilFU="
+	channelToken = os.Getenv("CHANNEL_TOKEN")
 	replyUrl     = "https://api.line.me/v2/bot/message/reply"
 	pushUrl      = "https://api.line.me/v2/bot/message/push"
 )
