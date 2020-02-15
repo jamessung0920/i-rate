@@ -1,33 +1,37 @@
 package common
 
 import (
-	"fmt"
 	"bytes"
-	"strings"
+	"fmt"
 	"net/http"
 	"runtime"
+	"strconv"
+	"strings"
 	"time"
 )
 
 func Contains(a []string, x string) (bool, int) {
-    for key, n := range a {
-        if x == n || strings.ToUpper(x) == n {
-            return true, key
-        }
-    }
-    return false, -1
+	for key, n := range a {
+		if x == n || strings.ToUpper(x) == n {
+			return true, key
+		}
+	}
+	return false, -1
 }
 
-func CallAPI(url string, method string, body []byte) {
+func CallAPI(url string, method string, body []byte, header map[string]string) {
 	req, _ := http.NewRequest(method, url, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
+	for key, value := range header {
+		req.Header.Set(key, value)
+	}
 
 	clt := http.Client{}
 	resp, respErr := clt.Do(req)
 	if respErr != nil {
-		panic(respErr)
-		fmt.Println(respErr)
+		Log.Error("call response api error!")
 	}
+	fmt.Println(resp)
 	defer resp.Body.Close()
 }
 
@@ -61,4 +65,9 @@ func StringToTime(strTime string) time.Time {
 		layoutTime, _ := time.Parse(formatLayout, strTime)
 		return layoutTime
 	}
+}
+
+func IsNumeric(s string) bool {
+	_, err := strconv.ParseFloat(s, 64)
+	return err == nil
 }
