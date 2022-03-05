@@ -80,7 +80,7 @@ func webhook(c *gin.Context) {
 		common.CreateUserFollowData(incomingUserID)
 		responseMessage = "請輸入幣別"
 	} else if incomingMessage == "使用說明" {
-		responseMessage = fmt.Sprintf("點選 \"貨幣列表\" 可查看目前支援貨幣匯率\n----------------------\n點選 \"關注\" 後依照指示設定理想匯率主動通知")
+		responseMessage = fmt.Sprintf("文字輸入幣別可查詢各家銀行匯率, 例如: 想查詢美金則在對話框輸入\"USD\" (也可輸入\"美金\", \"美元\", \"美幣\", \"米ドル\")即可顯示匯率\n----------------------\n點選 \"貨幣列表\" 可查看目前支援貨幣匯率\n----------------------\n點選 \"關注\" 後依照指示設定理想匯率主動通知")
 	} else if currencyKey, findOk := common.Mapkey(currencyStatement, strings.ToUpper(incomingMessage)); findOk {
 		isCurrency = true
 		if followList.UserID != "" && oriCurrencyID == 0 {
