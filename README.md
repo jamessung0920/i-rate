@@ -3,11 +3,11 @@
 
 1. 於 db 新增貨幣資料
     ```sql
-    insert into currency (currency) values ('USD');
-    insert into currency (currency) values ('JPY');
-    insert into currency (currency) values ('GBP');
-    insert into currency (currency) values ('EUR');
-    insert into currency (currency) values ('THB');
+    INSERT INTO currency (currency) VALUES ('USD');
+    INSERT INTO currency (currency) VALUES ('JPY');
+    INSERT INTO currency (currency) VALUES ('GBP');
+    INSERT INTO currency (currency) VALUES ('EUR');
+    INSERT INTO currency (currency) VALUES ('THB');
     ```
 
 2. 觸發爬蟲開始爬，並觸發主動通知
