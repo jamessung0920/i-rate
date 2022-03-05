@@ -12,8 +12,7 @@
 
 2. 觸發爬蟲開始爬，並觸發主動通知
     ```
-    $ curl <https://YOUR_DOMAIN>/currency/crawl
-    $ curl <https://YOUR_DOMAIN>/currency/rate/notify
+    $ curl https://<YOUR_DOMAIN>/currency/crawl && curl https://<YOUR_DOMAIN>/currency/rate/notify
     ```
 
 ## 啟動專案
